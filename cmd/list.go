@@ -15,8 +15,7 @@ var listCmd = &cobra.Command{
 	Long: `List the Peripheral names available`,
 	Aliases: []string{"l", "lst"},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		svd_lookup.List()
-		return nil
+		return svd_lookup.List()
 	},
 }
 

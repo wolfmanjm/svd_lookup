@@ -76,7 +76,7 @@ func lookupFile(basepath string, filename string) (string, error) {
 
 func lookupInNearestDir(basepath string, filename string) (string, error) {
 	if basepath == "/" {
-		return "", errors.New("database file not found: " + filename + " Starting at: " + cwd)
+		return "", errors.New("database file " + filename + " not found. Starting at: " + cwd)
 	}
 	nearest := path.Dir(basepath)
 	return lookupFile(nearest, filename)
@@ -108,6 +108,7 @@ func OpenDatabase() (error) {
 		dbfn = database
 	}
 
+	// make sure database file exists
 	_, err := os.Stat(dbfn)
 	if err != nil {
 		return err
@@ -154,13 +155,12 @@ func IntPow(base, exp int) int {
 }
 
 // TODO this can be refactored
-func Display(periph string, reg_pat string) {
+func Display(periph string, reg_pat string) (error) {
 	fmt.Println("Registers and fields for Peripheral:", periph, " for MPU:", getMPU())
 
 	p, err := fetch_peripheral_by_name(periph)
 	if err != nil {
-		fmt.Println("  No peripheral with name like: ", periph, err)
-		return
+		return errors.New("No peripheral with name like: " + periph)
 	}
 
 	fmt.Printf("%v base address: %v\n", p.name, p.base_address);
@@ -204,6 +204,7 @@ func Display(periph string, reg_pat string) {
 		}
 		fmt.Println()
 	}
+	return nil
 }
 
 // collect all the registers and their fields for the named peripheral
@@ -262,14 +263,14 @@ func (p Peripheral) String() string {
 	return b.String()
 }
 
-func Dump() {
+func Dump() (error) {
 	fmt.Println("MPU: ", getMPU())
 	fmt.Println("Database Dump:")
 
 	periphs, err := fetch_peripherals()
 
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	for _, p := range periphs {
@@ -290,14 +291,16 @@ func Dump() {
 		}
 		fmt.Println()
 	}
+
+	return nil
 }
 
-func List() {
+func List() (error) {
 	fmt.Println("Available Peripherals for MPU: ", getMPU())
 
 	periphs, err := fetch_peripherals()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	for _, p := range periphs {
@@ -307,15 +310,17 @@ func List() {
 			fmt.Println(p.name)
 		}
 	}
+
+	return nil
 }
 
-func Registers(periph string) {
+func Registers(periph string) (error) {
 	fmt.Println("Registers for Peripheral: ", periph, " for MPU: ", getMPU())
 
 	p, err := fetch_peripheral_by_name(periph)
 	if err != nil {
-		fmt.Println("  No peripheral with name like: ", periph, err)
-		return
+		fmt.Println("  No peripheral with name like: ", periph)
+		return err
 	}
 
 	id := p.id
@@ -333,6 +338,8 @@ func Registers(periph string) {
 		}
 		fmt.Println()
 	}
+
+	return nil
 }
 
 // database helpers

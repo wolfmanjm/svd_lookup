@@ -14,8 +14,7 @@ var dumpCmd = &cobra.Command{
 	Short: "Dumps the SVD database",
 	Long: `Dump out the entire database`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		svd_lookup.Dump()
-		return nil
+		return svd_lookup.Dump()
 	},
 }
 

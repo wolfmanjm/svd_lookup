@@ -19,8 +19,7 @@ var displayCmd = &cobra.Command{
 	If -r is specified then only the registers that match that pattern will be displayed`,
 	Aliases: []string{"d", "disp"},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		svd_lookup.Display(periph, reg_pat)
-		return nil
+		return svd_lookup.Display(periph, reg_pat)
 	},
 }
 

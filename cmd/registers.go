@@ -15,8 +15,7 @@ var registersCmd = &cobra.Command{
 	Long: `Just a list of register names`,
 	Aliases: []string{"r", "regs"},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		svd_lookup.Registers(periph)
-		return nil
+		return svd_lookup.Registers(periph)
 	},
 }
 
