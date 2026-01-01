@@ -4,7 +4,7 @@ Copyright © 2025 Jim Morris <morris@wolfman.com>
 package cmd
 
 import (
-	"fmt"
+	_ "fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -19,12 +19,12 @@ var periph string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "svd_lookup",
-	Short: "generates output from a SVD database",
-	Long: `access the SVD database,
-	and depending on the subcommand generate various code sequences to access the peripherals and registers
-	or display the available peripherals and/or registers.
+	Short: "queries a SVD database",
+	Long: `Query a SVD database in various ways.
+	Depending on the subcommand it can generate various code sequences to access the peripherals and registers
+	or display the available peripherals and/or registers in a human readable way.
 	`,
-	PersistentPreRun: pre_run,
+	PersistentPreRunE: pre_run,
 	PersistentPostRun: post_run,
 }
 
@@ -33,12 +33,12 @@ var rootCmd = &cobra.Command{
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		// fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func pre_run(cmd *cobra.Command, args []string) {
+func pre_run(cmd *cobra.Command, args []string) error {
 	if cwd != "" {
 		svd_lookup.SetSearchPath(cwd)
 	}
@@ -48,7 +48,7 @@ func pre_run(cmd *cobra.Command, args []string) {
 	if verbose {
 		svd_lookup.SetVerbose()
 	}
-	svd_lookup.OpenDatabase()
+	return svd_lookup.OpenDatabase()
 }
 
 func post_run(cmd *cobra.Command, args []string) {

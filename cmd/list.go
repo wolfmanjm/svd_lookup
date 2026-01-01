@@ -1,5 +1,5 @@
 /*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
+Copyright © 2025 Jim Morris <morris@wolfman.com>
 */
 package cmd
 
@@ -14,8 +14,9 @@ var listCmd = &cobra.Command{
 	Short: "List all peripherals",
 	Long: `List the Peripheral names available`,
 	Aliases: []string{"l", "lst"},
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		svd_lookup.List()
+		return nil
 	},
 }
 

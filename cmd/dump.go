@@ -1,5 +1,5 @@
 /*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
+Copyright © 2025 Jim Morris <morris@wolfman.com>
 */
 package cmd
 
@@ -13,8 +13,9 @@ var dumpCmd = &cobra.Command{
 	Use:   "dump",
 	Short: "Dumps the SVD database",
 	Long: `Dump out the entire database`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		svd_lookup.Dump()
+		return nil
 	},
 }
 

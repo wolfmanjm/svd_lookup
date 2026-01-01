@@ -101,7 +101,7 @@ func OpenDatabase() (error) {
 	if database == "" {
 		fn, err := FindUpwards("default-svd.db")
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 		dbfn = fn
 	} else {
@@ -110,12 +110,12 @@ func OpenDatabase() (error) {
 
 	_, err := os.Stat(dbfn)
 	if err != nil {
-		log.Fatal("Database file does not exist: ", dbfn)
+		return err
 	}
 
 	db, err := sql.Open("sqlite3", dbfn)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	DB= db
