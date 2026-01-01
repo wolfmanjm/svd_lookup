@@ -16,7 +16,8 @@ var displayCmd = &cobra.Command{
 	Short: "Human readable display of the registers and fields for the specified peripheral",
 	Long: `Human readable display of the registers and fields for the specified peripheral
 	If -v is specified then descriptions for the registers and fields is also displayed
-	If -r is specified then only the registers that match that pattern will be displayed`,
+	If -r is specified then only the registers that match that pattern will be displayed
+	The -p name may contain % as a wildcard for matching the peripheral name`,
 	Aliases: []string{"d", "disp"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return svd_lookup.Display(periph, reg_pat)

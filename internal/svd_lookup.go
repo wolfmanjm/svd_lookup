@@ -53,6 +53,36 @@ type Field struct {
 	description sql.Null[string]
 }
 
+// print helpers for the structs
+func (f Field) String() string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "Field:  %v, number bits %v, bit offset: %v\n", f.name, f.num_bits, f.bit_offset)
+	return b.String()
+}
+
+func (r Register) String() string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "Register: %v, address offset: %v\n", r.name, r.address_offset)
+	if r.fields != nil {
+		for _, f := range *r.fields  {
+			fmt.Fprint(&b, "    ", f)
+		}
+	}
+
+	return b.String()
+}
+
+func (p Peripheral) String() string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "Peripheral: %v, base address: %v\n", p.name, p.base_address)
+	if p.registers != nil {
+		for _, r := range *p.registers  {
+			fmt.Fprint(&b, "  ", r)
+		}
+	}
+	return b.String()
+}
+
 var DB *sql.DB
 var cwd string
 var database string
@@ -154,7 +184,6 @@ func IntPow(base, exp int) int {
     return result
 }
 
-// TODO this can be refactored
 func Display(periph string, reg_pat string) (error) {
 	fmt.Println("Registers and fields for Peripheral:", periph, " for MPU:", getMPU())
 
@@ -173,37 +202,40 @@ func Display(periph string, reg_pat string) (error) {
 		fmt.Println("Has the same registers as", np.name)
 	}
 
-	regs := fetch_registers(id)
-	m := make(map[int]string)
-	var v []int
-	for _, r := range regs {
-		if reg_pat != "" && !strings.Contains(strings.ToLower(r.name), strings.ToLower(reg_pat)) {
-			continue
-		}
-		s := fmt.Sprintf("Register %v offset: %v, reset: %v", r.name, r.address_offset, r.reset_value.V)
-		if verbose && r.description.Valid {
-			s += " - " + r.description.V
-		}
-		m[r.id] = s
-		v = append(v, r.id) // so we can keep the correct register order
+	// collects and populates all the registers and fields for this peripheral
+	pr, err := collect_registers(p.name)
+	if err != nil {
+		return fmt.Errorf("Cannot collect registers for peripheral %v: %w", p.name, err)
 	}
 
-	// we want to display the registers in the order they were given us (alphabetical)
-	for _, i := range v {
-		s := m[i]
-		fmt.Println(s)
-		fields := fetch_fields(i)
-		for _,f := range fields {
-			desc := ""
-			if verbose && f.description.Valid {
-				desc = " - " + f.description.V
+	// print out
+	if pr.registers != nil {
+		for _, r := range *pr.registers  {
+			// filter out registers if required
+			if reg_pat != "" && !strings.Contains(strings.ToLower(r.name), strings.ToLower(reg_pat)) {
+				continue
 			}
 
-			mask := (IntPow(2, f.num_bits) - 1) << f.bit_offset
-			fmt.Printf("  %v: number bits %v, bit offset: %v, mask: 0x%08X %s\n", f.name, f.num_bits, f.bit_offset, mask, desc)
+			s := fmt.Sprintf("Register %v offset: %v, reset: %v", r.name, r.address_offset, r.reset_value.V)
+			if verbose && r.description.Valid {
+				s += " - " + r.description.V
+			}
+			fmt.Println(s)
+
+			// print out the fields for this register
+			if r.fields != nil {
+				for _, f := range *r.fields  {
+					desc := ""
+					if verbose && f.description.Valid {
+						desc = " - " + f.description.V
+					}
+					mask := (IntPow(2, f.num_bits) - 1) << f.bit_offset
+					fmt.Printf("    %v: number bits %v, bit offset: %v, mask: 0x%08X %s\n", f.name, f.num_bits, f.bit_offset, mask, desc)
+				}
+			}
 		}
-		fmt.Println()
 	}
+
 	return nil
 }
 
@@ -230,36 +262,6 @@ func collect_registers(periph string) (Peripheral, error) {
 	p.registers = &regs
 
 	return p, nil
-}
-
-// print helpers for the structs
-func (f Field) String() string {
-	var b strings.Builder
-	fmt.Fprintf(&b, "Field:  %v, number bits %v, bit offset: %v\n", f.name, f.num_bits, f.bit_offset)
-	return b.String()
-}
-
-func (r Register) String() string {
-	var b strings.Builder
-	fmt.Fprintf(&b, "Register: %v, address offset: %v\n", r.name, r.address_offset)
-	if r.fields != nil {
-		for _, f := range *r.fields  {
-			fmt.Fprint(&b, "    ", f)
-		}
-	}
-
-	return b.String()
-}
-
-func (p Peripheral) String() string {
-	var b strings.Builder
-	fmt.Fprintf(&b, "Peripheral: %v, base address: %v\n", p.name, p.base_address)
-	if p.registers != nil {
-		for _, r := range *p.registers  {
-			fmt.Fprint(&b, "  ", r)
-		}
-	}
-	return b.String()
 }
 
 func Dump() (error) {
