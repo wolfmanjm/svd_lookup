@@ -8,6 +8,8 @@ display of the registers and fields for a given peripheral
 
 The data directory has some example SVD databases already converted.
 
+The bins/ directory has various binaries ready to run on selected platforms.
+
 ```
 > svd_lookup --help
 access the SVD database,
