@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -26,7 +25,7 @@ CREATE TABLE `fields` (`id` integer NOT NULL PRIMARY KEY AUTOINCREMENT, `registe
 type MPU struct {
 	id int
 	name string
-	description string
+	description sql.Null[string]
 }
 
 type Peripheral struct {
@@ -89,6 +88,7 @@ var DB *sql.DB
 var cwd string
 var database string
 var verbose bool
+var mpu_id int
 
 func FindUpwards(filename string) (string, error) {
 	if cwd == "" {
@@ -153,6 +153,19 @@ func OpenDatabase() (error) {
 
 	DB= db
 
+	// makes sure the database is ok
+	mpus, err := fetchMPUs()
+	if err != nil {
+		return fmt.Errorf("Unable to get MPUs, is the database valid? - %w", err)
+	}
+
+	if len(mpus) < 1 {
+		return errors.New("No MPUs in database")
+	}
+
+	// just use the first one
+	mpu_id = mpus[0].id
+
 	return nil
 }
 
@@ -161,13 +174,10 @@ func CloseDatabase() {
 }
 
 func getMPU() string {
-	var mpuname string
-    // Query for a value based on a single row.
-    if err := DB.QueryRow("SELECT name from mpus").Scan(&mpuname); err != nil {
-        log.Fatal(err, " - Check this is a svd database")
-    }
-
-	return mpuname
+	// this should work as it was tested in OpenDatabase
+	mpu, _ := fetchMPUs()
+	// just use first one
+	return mpu[0].name
 }
 
 func IntPow(base, exp int) int {
@@ -301,9 +311,32 @@ func Registers(periph string) (error) {
 
 // database helpers
 
+func fetchMPUs() ([]MPU, error) {
+	var mpus []MPU
+	mpu_rows, err := DB.Query("select id, name, description from mpus ORDER BY name")
+	if err != nil {
+		return mpus, err
+	}
+	defer mpu_rows.Close()
+
+	for mpu_rows.Next() {
+		var m MPU
+		if err := mpu_rows.Scan(&m.id, &m.name, &m.description); err != nil {
+			return mpus, err
+		}
+		mpus= append(mpus, m)
+	}
+
+	if err := mpu_rows.Err(); err != nil {
+		return mpus, err
+	}
+
+	return mpus, nil
+}
+
 func fetch_peripherals() ([]Peripheral, error) {
 	var periphs []Peripheral
-	periph_rows, err := DB.Query("select id, derived_from_id, name, base_address, description from peripherals ORDER BY name")
+	periph_rows, err := DB.Query("select id, derived_from_id, name, base_address, description from peripherals WHERE mpu_id = ? ORDER BY name", mpu_id)
 	if err != nil {
 		return periphs, err
 	}
@@ -328,7 +361,7 @@ func fetch_peripherals() ([]Peripheral, error) {
 func fetch_peripheral_by_name(periph string) (Peripheral, error) {
 	var p Peripheral
 
-    if err := DB.QueryRow("SELECT id, derived_from_id, name, base_address, description from peripherals WHERE lower(name) LIKE lower(?)", periph).
+    if err := DB.QueryRow("SELECT id, derived_from_id, name, base_address, description from peripherals WHERE mpu_id = ? AND lower(name) LIKE lower(?)", mpu_id, periph).
     	Scan(&p.id, &p.derived_from, &p.name, &p.base_address, &p.description); err != nil {
         	return p, err
     }
@@ -338,7 +371,7 @@ func fetch_peripheral_by_name(periph string) (Peripheral, error) {
 func fetch_peripheral(id int) (Peripheral, error) {
 	var p Peripheral
 
-    if err := DB.QueryRow("SELECT id, derived_from_id, name, base_address, description from peripherals WHERE id = ?", id).
+    if err := DB.QueryRow("SELECT id, derived_from_id, name, base_address, description from peripherals WHERE mpu_id = ? AND id = ?", mpu_id, id).
     	Scan(&p.id, &p.derived_from, &p.name, &p.base_address, &p.description); err != nil {
         	return p, err
     }
