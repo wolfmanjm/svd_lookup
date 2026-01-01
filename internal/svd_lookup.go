@@ -223,7 +223,7 @@ func Dump() (error) {
 	periphs, err := fetch_peripherals()
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to fetch peripherals - %w", err)
 	}
 
 	for _, p := range periphs {
@@ -256,7 +256,7 @@ func List() (error) {
 
 	periphs, err := fetch_peripherals()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to fetch peripherals - %w", err)
 	}
 
 	for _, p := range periphs {
@@ -275,8 +275,7 @@ func Registers(periph string) (error) {
 
 	p, err := fetch_peripheral_by_name(periph)
 	if err != nil {
-		fmt.Println("  No peripheral with name like: ", periph)
-		return err
+		return fmt.Errorf("No peripheral with name like: %v - %w", periph, err)
 	}
 
 	id := p.id
@@ -319,8 +318,7 @@ func fetch_peripherals() ([]Peripheral, error) {
 		periphs= append(periphs, p)
 	}
 
-	err = periph_rows.Err()
-	if err != nil {
+	if err := periph_rows.Err(); err != nil {
 		return periphs, err
 	}
 
@@ -365,8 +363,7 @@ func fetch_registers(p_id int) ([]Register, error) {
 		registers= append(registers, reg)
 	}
 
-	err = register_rows.Err()
-	if err != nil {
+	if err := register_rows.Err(); err != nil {
 		return nil, fmt.Errorf("failure in fetch_registers rows for id %v: %w", p_id, err)
 	}
 
@@ -390,8 +387,7 @@ func fetch_fields(r_id int) ([]Field, error) {
 		fields= append(fields, f)
 	}
 
-	err = field_rows.Err()
-	if err != nil {
+	if err := field_rows.Err(); err != nil {
 		return nil, fmt.Errorf("failure in fetch_registers rows for id %v: %w", r_id, err)
 	}
 

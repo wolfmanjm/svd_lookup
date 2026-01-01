@@ -1,7 +1,6 @@
 package svd_lookup
 
 import (
-	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -12,7 +11,7 @@ func Display(periph string, reg_pat string) (error) {
 
 	p, err := fetch_peripheral_by_name(periph)
 	if err != nil {
-		return errors.New("No peripheral with name like: " + periph)
+		return fmt.Errorf("No peripheral with name like %v - %w", periph, err)
 	}
 
 	fmt.Printf("%v base address: %v\n", p.name, p.base_address);
