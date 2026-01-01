@@ -205,7 +205,7 @@ func Display(periph string, reg_pat string) (error) {
 	// collects and populates all the registers and fields for this peripheral
 	pr, err := collect_registers(p.name)
 	if err != nil {
-		return fmt.Errorf("Cannot collect registers for peripheral %v: %w", p.name, err)
+		return fmt.Errorf("Failed to collect registers for peripheral %v: %w", p.name, err)
 	}
 
 	// print out
@@ -252,10 +252,15 @@ func collect_registers(periph string) (Peripheral, error) {
 		id = p.derived_from.V
 	}
 
-	regs := fetch_registers(id)
-
+	regs, err := fetch_registers(id)
+	if err != nil {
+		return p, err
+	}
 	for i, r := range regs {
-		fields := fetch_fields(r.id)
+		fields, err := fetch_fields(r.id)
+		if err != nil {
+			return p, err
+		}
 		regs[i].fields = &fields
 	}
 
@@ -333,8 +338,10 @@ func Registers(periph string) (error) {
 		id = p.derived_from.V
 	}
 
-	regs := fetch_registers(id)
-
+	regs, err := fetch_registers(id)
+	if err != nil {
+		return err
+	}
 	for _, r := range regs {
 		fmt.Print(r.name)
 		if verbose && r.description.Valid {
@@ -393,52 +400,53 @@ func fetch_peripheral(id int) (Peripheral, error) {
     return p, nil;
 }
 
-func fetch_registers(p_id int) []Register {
+func fetch_registers(p_id int) ([]Register, error) {
 	register_rows, err := DB.Query("select id, name, address_offset, reset_value, description from registers WHERE peripheral_id = ? ORDER BY name", p_id)
-	defer register_rows.Close()
 
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("failure in fetch_registers query for id %v: %w", p_id, err)
 	}
+	defer register_rows.Close()
+
 	var registers []Register
 	for register_rows.Next() {
 		var reg Register
 		err = register_rows.Scan(&reg.id, &reg.name, &reg.address_offset, &reg.reset_value, &reg.description)
 		if err != nil {
-			log.Fatal(err)
+			return nil, fmt.Errorf("failure in fetch_registers scan for id %v: %w", p_id, err)
 		}
 		registers= append(registers, reg)
 	}
 
 	err = register_rows.Err()
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("failure in fetch_registers rows for id %v: %w", p_id, err)
 	}
 
-	return registers
+	return registers, nil
 }
 
-func fetch_fields(r_id int) []Field {
+func fetch_fields(r_id int) ([]Field, error) {
 	field_rows, err := DB.Query("select name, num_bits, bit_offset, description from fields WHERE register_id = ? ORDER BY bit_offset", r_id)
-	defer field_rows.Close()
 
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("failure in fetch_fields query for id %v: %w", r_id, err)
 	}
+	defer field_rows.Close()
 	var fields []Field
 	for field_rows.Next() {
 		var f Field
 		err = field_rows.Scan(&f.name, &f.num_bits, &f.bit_offset, &f.description)
 		if err != nil {
-			log.Fatal(err)
+			return nil, fmt.Errorf("failure in fetch_fields scan for id %v: %w", r_id, err)
 		}
 		fields= append(fields, f)
 	}
 
 	err = field_rows.Err()
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("failure in fetch_registers rows for id %v: %w", r_id, err)
 	}
 
-	return fields
+	return fields, nil
 }
