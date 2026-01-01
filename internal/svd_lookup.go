@@ -111,12 +111,12 @@ func OpenDatabase() (error) {
 	// make sure database file exists
 	_, err := os.Stat(dbfn)
 	if err != nil {
-		return err
+		return fmt.Errorf("database file %v does not exist - %w", dbfn, err)
 	}
 
 	db, err := sql.Open("sqlite3", dbfn)
 	if err != nil {
-		return err
+		return fmt.Errorf("Unable to open database file %v - %w", dbfn, err)
 	}
 
 	DB= db
@@ -208,11 +208,10 @@ func Display(periph string, reg_pat string) (error) {
 }
 
 // collect all the registers and their fields for the named peripheral
-func collect_registers(periph string) Peripheral {
+func collect_registers(periph string) (Peripheral, error) {
 	p, err := fetch_peripheral_by_name(periph)
 	if err != nil {
-		fmt.Println("  No peripheral with name like: ", periph, err)
-		return p
+		return p, fmt.Errorf("Peripheral %v not found: %w", periph, err)
 	}
 
 	id := p.id
@@ -230,7 +229,7 @@ func collect_registers(periph string) Peripheral {
 
 	p.registers = &regs
 
-	return p
+	return p, nil
 }
 
 // print helpers for the structs
@@ -278,7 +277,7 @@ func Dump() (error) {
 			fmt.Print(p)
 			p, err := fetch_peripheral(p.derived_from.V)
 			if err != nil {
-				fmt.Println("  No peripheral with id: ", p.derived_from.V, err)
+				return fmt.Errorf("No derived peripheral with id: %v found: %w", p.derived_from.V, err)
 			}else{
 				fmt.Println("  Registers the same as ", p.name)
 			}
@@ -286,7 +285,10 @@ func Dump() (error) {
 		} else {
 			// registers := fetch_registers(p_id)
 			// dump_registers_and_fields(registers)
-			pr := collect_registers(p.name)
+			pr, err := collect_registers(p.name)
+			if err != nil {
+				return err
+			}
 			fmt.Print(pr)
 		}
 		fmt.Println()
