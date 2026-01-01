@@ -3,6 +3,7 @@ package svd_lookup
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -32,12 +33,16 @@ func Display(periph string, reg_pat string) (error) {
 
 	// print out
 	if pr.registers != nil {
-		for _, r := range *pr.registers  {
-			// filter out registers if required
-			if reg_pat != "" && !strings.Contains(strings.ToLower(r.name), strings.ToLower(reg_pat)) {
-				continue
-			}
+		regs := *pr.registers
 
+		if reg_pat != "" {
+			// filter out registers if required
+			regs = slices.DeleteFunc(regs, func(n Register) bool {
+				return !strings.Contains(strings.ToLower(n.name), strings.ToLower(reg_pat))
+			})
+		}
+
+		for _, r := range regs {
 			s := fmt.Sprintf("Register %v offset: %v, reset: %v", r.name, r.address_offset, r.reset_value.V)
 			if verbose && r.description.Valid {
 				s += " - " + r.description.V
