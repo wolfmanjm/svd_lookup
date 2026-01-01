@@ -3,8 +3,21 @@ The program that converts a .svd to a sqlite3 database is still written in ruby 
 
 This program is a commandline program written in GO (as a way to learn GO).
 
-It currently allows querying the svd database and displaying things like all peripherals, all registers in a periperal and a human readable
-display of the registers and fields for a given peripheral
+It currently allows querying the svd database and displaying things like all
+peripherals, all registers in a periperal and a human readable display of the
+registers and fields for a given peripheral.
+
+It can also generate words for forth allowing access to the peripherals and
+registers, one of two formats can be selected:
+
+1. Use constants to define the registers and bitfields
+2. use the lib_registers structs to access them
+
+The helper words supporting these two methods can optionally be added to the
+output with the --addwords option
+
+`svd_lookup forth --help` gives more details
+
 
 The data directory has some example SVD databases already converted.
 
@@ -12,26 +25,27 @@ The bins/ directory has various binaries ready to run on selected platforms.
 
 ```
 > svd_lookup --help
-access the SVD database,
-and depending on the subcommand generate various code sequences to access the peripherals and registers
-or display the available peripherals and/or registers.
+Query a SVD database in various ways.
+Depending on the subcommand it can generate various code sequences to access the peripherals and registers
+or display the available peripherals and/or registers in a human readable way.
 
 Usage:
 svd_lookup [command]
 
 Available Commands:
-completion  Generate the autocompletion script for the specified shell
-display     Human readable display of the registers and fields for the specified peripheral
-dump        Dumps the SVD database
-help        Help about any command
-list        List all peripherals
-registers   List all the registers for the specified peripheral
+	completion  Generate the autocompletion script for the specified shell
+	display     Human readable display of the registers and fields for the specified peripheral
+	dump        Dumps the SVD database
+	forth       Generate forth words to access the specified peripheral
+	help        Help about any command
+	list        List all peripherals
+	registers   List all the registers for the specified peripheral
 
 Flags:
--c, --curdir string     set the current directory for db search
--d, --database string   use the named database
--h, --help              help for svd_lookup
--v, --verbose           verbose output
+	-c, --curdir string     set the current directory for db search
+	-d, --database string   use the named database
+	-h, --help              help for svd_lookup
+	-v, --verbose           verbose output
 
 Use "svd_lookup [command] --help" for more information about a command.
 ```

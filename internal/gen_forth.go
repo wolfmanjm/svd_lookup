@@ -38,15 +38,17 @@ var lib_registers_code string = `
     1 swap lshift 1-foldable ;
 `
 
+var Addwords bool
+
 // generate forth constants for the specified peripheral
-func GenForthConsts(periph string, reg_pat string, addwords bool) error {
+func GenForthConsts(periph string, reg_pat string) error {
     // collects and populates all the registers and fields for this peripheral
     pr, err := collect_registers(periph)
     if err != nil {
         return fmt.Errorf("Failed to collect registers for peripheral %v: %w", periph, err)
     }
 
-    if addwords {
+    if Addwords {
         fmt.Print(modify_reg_code)
         fmt.Println()
     }
@@ -97,10 +99,10 @@ func GenForthConsts(periph string, reg_pat string, addwords bool) error {
     return nil
 }
 
-func GenForthRegs(periph string, reg_pat string, addwords bool) error {
+func GenForthRegs(periph string, reg_pat string) error {
     fmt.Println("forth regs")
 
-    if addwords {
+    if Addwords {
         fmt.Print(lib_registers_code)
         fmt.Println()
     }

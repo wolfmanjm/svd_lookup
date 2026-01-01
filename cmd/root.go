@@ -4,9 +4,7 @@ Copyright © 2025 Jim Morris <morris@wolfman.com>
 package cmd
 
 import (
-	_ "fmt"
 	"os"
-
 	"github.com/spf13/cobra"
 	svd_lookup "github.com/wolfmanjm/svd_lookup/internal"
 )

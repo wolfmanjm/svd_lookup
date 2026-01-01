@@ -21,10 +21,11 @@ var forthCmd = &cobra.Command{
 		if err != nil {
 			b = false
 		}
+		svd_lookup.Addwords = b
 		if forth_type {
-			return svd_lookup.GenForthRegs(periph, reg_pat, b)
+			return svd_lookup.GenForthRegs(periph, reg_pat)
 		} else {
-			return svd_lookup.GenForthConsts(periph, reg_pat, b)
+			return svd_lookup.GenForthConsts(periph, reg_pat)
 		}
 	},
 }
