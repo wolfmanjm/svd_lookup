@@ -63,14 +63,14 @@ func Convert(filename string, ofile string) error {
 	// Read the SVD file
 	data, err := os.ReadFile(filename)
 	if err != nil {
-		return fmt.Errorf("Error in convert reading file: %w\n", err)
+		return fmt.Errorf("in convert reading file: %w\n", err)
 	}
 
 	// Parse XML
 	var device Device
 	err = xml.Unmarshal(data, &device)
 	if err != nil {
-		return fmt.Errorf("Error in convert parsing XML: %w\n", err)
+		return fmt.Errorf("in convert parsing XML: %w\n", err)
 	}
 
 	var outfile string
@@ -83,7 +83,7 @@ func Convert(filename string, ofile string) error {
 	// create the database with its schema
 	db, err := db_createdb(outfile)
 	if err != nil {
-		return fmt.Errorf("Error in convert creating database: %w\n", err)
+		return fmt.Errorf("in convert creating database: %w\n", err)
 	}
 	defer db.Close()
 
@@ -91,7 +91,7 @@ func Convert(filename string, ofile string) error {
 	m := map[string]any{"name": device.Name, "description": device.Description}
 	mpu_id, err := db_insert(db, "mpus", m)
 	if err != nil {
-		return fmt.Errorf("Error in convert inserting 'mpu' to database: %w\n", err)
+		return fmt.Errorf("in convert inserting 'mpu' to database: %w\n", err)
 	}
 
 	periph_ids = make(map[string]int)
@@ -100,7 +100,7 @@ func Convert(filename string, ofile string) error {
 	// insert peripherals and their registers
 	for _, peripheral := range device.Peripherals {
 		if err := insertPeripheral(db, mpu_id, peripheral); err != nil {
-			return fmt.Errorf("Error in convert inserting 'peripherals' to database: %w\n", err)
+			return fmt.Errorf("in convert inserting 'peripherals' to database: %w\n", err)
 		}
 	}
 
@@ -134,7 +134,7 @@ func insertPeripheral(db *sql.DB, mpu_id int, p Peripheral) error {
 	// enter into the database
 	peripheral_id, err := db_insert(db, "peripherals", m)
 	if err != nil {
-		return fmt.Errorf("Error in insertPeripheral inserting peripheral %v to database: %w\n", p.Name, err)
+		return fmt.Errorf("in insertPeripheral inserting peripheral %v to database: %w\n", p.Name, err)
 	}
 
 	// add to list of peripherals and the ids
@@ -144,7 +144,7 @@ func insertPeripheral(db *sql.DB, mpu_id int, p Peripheral) error {
 		// Insert registers
 		for _, register := range p.Registers {
 			if err := insertRegister(db, peripheral_id, register); err != nil {
-				return fmt.Errorf("Error in insertPeripheral inserting registers to database: %w\n",  err)
+				return fmt.Errorf("in insertPeripheral inserting registers to database: %w\n",  err)
 			}
 		}
 	}
@@ -167,14 +167,14 @@ func insertRegister(db *sql.DB, peripheral_id int, r Register) error {
 	// enter into the database
 	register_id, err := db_insert(db, "registers", m)
 	if err != nil {
-		return fmt.Errorf("Error in insertRegister inserting %v to database: %w\n", r.Name, err)
+		return fmt.Errorf("in insertRegister inserting %v to database: %w\n", r.Name, err)
 	}
 
 	// Insert fields
 	if len(r.Fields) > 0 {
 		for _, field := range r.Fields {
 			if err := insertField(db, register_id, field); err != nil {
-				return fmt.Errorf("Error in insertRegister inserting fields to database: %w\n",  err)
+				return fmt.Errorf("in insertRegister inserting fields to database: %w\n",  err)
 			}
 		}
 	}
@@ -196,11 +196,11 @@ func insertField(db *sql.DB, register_id int, f Field) error {
 	if f.BitOffset != "" && f.BitWidth != "" {
 		bit_offset, err = strconv.Atoi(f.BitOffset)
 		if err != nil {
-			return fmt.Errorf("Error in insertField converting bitOffset %v to integer: %w\n", f.BitOffset, err)
+			return fmt.Errorf("in insertField converting bitOffset %v to integer: %w\n", f.BitOffset, err)
 		}
 		num_bits, err = strconv.Atoi(f.BitWidth)
 		if err != nil {
-			return fmt.Errorf("Error in insertField converting bitWidth %v to integer: %w\n", f.BitWidth, err)
+			return fmt.Errorf("in insertField converting bitWidth %v to integer: %w\n", f.BitWidth, err)
 		}
 
 	} else if f.BitRange != "" {
@@ -208,20 +208,20 @@ func insertField(db *sql.DB, register_id int, f Field) error {
 		br := strings.Split(f.BitRange[1:len(f.BitRange)-1], ":")
 		hr, err := strconv.Atoi(br[0])
 		if err != nil {
-			return fmt.Errorf("Error in insertField converting bitRange to integer: %w\n",  err)
+			return fmt.Errorf("in insertField converting bitRange to integer: %w\n",  err)
 		}
 		lr, err := strconv.Atoi(br[1])
 		if err != nil {
-			return fmt.Errorf("Error in insertField converting bitRange to integer: %w\n",  err)
+			return fmt.Errorf("in insertField converting bitRange to integer: %w\n",  err)
 		}
 		bit_offset = lr
 		num_bits = (hr-lr)+1
 
 	} else if f.LSB != "" && f.MSB != "" {
-		return fmt.Errorf("Error in insertField bit MSB/LSB not handled")
+		return fmt.Errorf("in insertField bit MSB/LSB not handled")
 
 	} else {
-		return fmt.Errorf("Error in insertField no valid bit info found")
+		return fmt.Errorf("in insertField no valid bit info found")
 	}
 
 	m["num_bits"] = num_bits
@@ -230,7 +230,7 @@ func insertField(db *sql.DB, register_id int, f Field) error {
 	// enter into the database
 	_, err = db_insert(db, "fields", m)
 	if err != nil {
-		return fmt.Errorf("Error in insertField inserting %v to database: %w\n", f.Name, err)
+		return fmt.Errorf("in insertField inserting %v to database: %w\n", f.Name, err)
 	}
 
 	return nil
