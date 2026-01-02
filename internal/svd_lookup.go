@@ -146,7 +146,8 @@ func OpenDatabase() (error) {
 		return fmt.Errorf("database file %v does not exist - %w", dbfn, err)
 	}
 
-	db, err := sql.Open("sqlite3", dbfn)
+	fn := "file:" + dbfn + "?mode=ro"
+	db, err := sql.Open("sqlite3", fn)
 	if err != nil {
 		return fmt.Errorf("Unable to open database file %v - %w", dbfn, err)
 	}
