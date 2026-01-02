@@ -59,7 +59,7 @@ type Field struct {
 var periph_ids map[string]int
 // var deferred_derived_from map[string]string
 
-func Convert(filename string) error {
+func Convert(filename string, ofile string) error {
 	// Read the SVD file
 	data, err := os.ReadFile(filename)
 	if err != nil {
@@ -73,7 +73,12 @@ func Convert(filename string) error {
 		return fmt.Errorf("Error in convert parsing XML: %w\n", err)
 	}
 
-	outfile := strings.Replace(filename, filepath.Ext(filename), ".db", 1)
+	var outfile string
+	if ofile == "" {
+		outfile = strings.Replace(filename, filepath.Ext(filename), ".db", 1)
+	} else {
+		outfile = ofile
+	}
 
 	// create the database with its schema
 	db, err := db_createdb(outfile)

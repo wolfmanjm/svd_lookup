@@ -37,26 +37,34 @@ func Execute() {
 }
 
 func pre_run(cmd *cobra.Command, args []string) error {
-	if cwd != "" {
-		svd_lookup.SetSearchPath(cwd)
+	if cmd.Name() != "convert" {
+		if cwd != "" {
+			svd_lookup.SetSearchPath(cwd)
+		}
+		if database != "" {
+			svd_lookup.SetDatabase(database)
+		}
+		if verbose {
+			svd_lookup.SetVerbose()
+		}
+		return svd_lookup.OpenDatabase()
+
+	} else {
+		return nil
 	}
-	if database != "" {
-		svd_lookup.SetDatabase(database)
-	}
-	if verbose {
-		svd_lookup.SetVerbose()
-	}
-	return svd_lookup.OpenDatabase()
 }
 
 func post_run(cmd *cobra.Command, args []string) {
-	svd_lookup.CloseDatabase()
+	if cmd.Name() != "convert" {
+		svd_lookup.CloseDatabase()
+	}
 }
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().StringVarP(&cwd, "curdir", "c", "", "set the current directory for db search")
 	rootCmd.PersistentFlags().StringVarP(&database, "database", "d", "", "use the named database")
+	rootCmd.MarkFlagsMutuallyExclusive("curdir", "database")
 }
 
 

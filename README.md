@@ -1,5 +1,5 @@
 This project is a rewrite of my svd [lookup tools](https://github.com/wolfmanjm/svd2db-v2) that were written in ruby ported to GO.
-The program that converts a .svd to a sqlite3 database is still written in ruby in that other repo.
+There is also program that converts a .svd to a sqlite3 database.
 
 This program is a commandline program written in GO (as a way to learn GO).
 
@@ -22,6 +22,14 @@ output with the --addwords option
 The data directory has some example SVD databases already converted.
 
 The bins/ directory has various binaries ready to run on selected platforms.
+
+To convert a .SVD file to the database you would run...
+
+```
+svd_lookup convert myfile.svd myfile.db
+```
+
+This may take a while for very large SVD files
 
 ```
 > svd_lookup --help

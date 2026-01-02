@@ -18,6 +18,7 @@ var displayCmd = &cobra.Command{
 	If -v is specified then descriptions for the registers and fields is also displayed
 	If -r is specified then only the registers that match that pattern will be displayed
 	The -p name may contain % as a wildcard for matching the peripheral name`,
+	Args: cobra.NoArgs,
 	Aliases: []string{"d", "disp"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return svd_lookup.Display(periph, reg_pat)
