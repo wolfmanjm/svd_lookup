@@ -57,7 +57,7 @@ func GenForthConsts(periph string, reg_pat string) error {
 
     fmt.Printf("%v constant %v_BASE\n", strings.Replace(pr.base_address, "0x", "$", 1), pr.name)
 
-    prefix := strings.ToLower(pr.name)[0:3]
+    prefix := strings.ToLower(pr.name)
 
     // print out
     if pr.registers != nil {
@@ -111,6 +111,7 @@ func GenForthRegs(periph string, reg_pat string) error {
 
     if Addwords {
         fmt.Print(lib_registers_code)
+        fmt.Print(modify_reg_code)
         fmt.Println()
     }
 
