@@ -12,7 +12,7 @@ var reg_pat string
 
 // displayCmd represents the display command
 var displayCmd = &cobra.Command{
-	Use:   "display",
+	Use:   "display --peripheral name [--register regpattern]",
 	Short: "Human readable display of the registers and fields for the specified peripheral",
 	Long: `Human readable display of the registers and fields for the specified peripheral
 	If -v is specified then descriptions for the registers and fields is also displayed

@@ -11,7 +11,7 @@ import (
 var forth_type bool
 // forthCmd represents the forth command
 var forthCmd = &cobra.Command{
-	Use:   "forth",
+	Use:   "forth --peripheral name [--register regpattern]",
 	Short: "Generate forth words to access the specified peripheral",
 	Long: `Generates forth words to access the specified peripheral
 	By default it generates constants, by using the --freg flag it will instead generate words that use the register format`,
