@@ -11,8 +11,8 @@ import (
 // asmCmd represents the asm command
 var asmCmd = &cobra.Command{
 	Use:   "asm --peripheral name [--register regpattern]",
-	Short: "Generate asm .equ directives defining register and fields",
-	Long:  `Generate asm .equ directives defining register and fields
+	Short: "Generate asm .equ directives defining registers and fields",
+	Long:  `Generate asm .equ directives defining registers and fields
 		specifying the -r 'pat' will only print out the registers with 'pat' in the name
 		to print out just the register equates use -r xx
 		if the periphal name ends in '_n' then we scan for all matching peripherals
