@@ -359,6 +359,30 @@ func fetch_peripherals() ([]Peripheral, error) {
 	return periphs, nil
 }
 
+func fetch_peripherals_like(s string) ([]Peripheral, error) {
+	var periphs []Peripheral
+	periph_rows, err := DB.Query("select id, derived_from_id, name, base_address, description from peripherals WHERE mpu_id = ? AND lower(name) LIKE lower(?) ORDER BY name", mpu_id, s)
+	if err != nil {
+		return periphs, err
+	}
+	defer periph_rows.Close()
+
+	for periph_rows.Next() {
+		var p Peripheral
+		err = periph_rows.Scan(&p.id, &p.derived_from, &p.name, &p.base_address, &p.description)
+		if err != nil {
+			return periphs, err
+		}
+		periphs= append(periphs, p)
+	}
+
+	if err := periph_rows.Err(); err != nil {
+		return periphs, err
+	}
+
+	return periphs, nil
+}
+
 func fetch_peripheral_by_name(periph string) (Peripheral, error) {
 	var p Peripheral
 
