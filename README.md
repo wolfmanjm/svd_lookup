@@ -22,6 +22,9 @@ Additionally it can generate defines (.equ) for assembly level code (risc-v or a
 
 `svd_lookup asm --help` gives more details
 
+You can specify the database to use with the --database option, if this is not specified
+then it will search in the current directory and above for a default-svd.db file and use that.
+You can set the start directory to search from with the --curdir option.
 
 The data directory has some example SVD databases already converted.
 
