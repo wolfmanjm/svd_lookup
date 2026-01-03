@@ -18,6 +18,10 @@ output with the --addwords option
 
 `svd_lookup forth --help` gives more details
 
+Additionally it can generate defines (.equ) for assembly level code (risc-v or arm)
+
+`svd_lookup asm --help` gives more details
+
 
 The data directory has some example SVD databases already converted.
 
@@ -34,27 +38,28 @@ This may take a while for very large SVD files
 ```
 > svd_lookup --help
 Query a SVD database in various ways.
-	Depending on the subcommand it can generate various code sequences to access the peripherals and registers
-	or display the available peripherals and/or registers in a human readable way.
+Depending on the subcommand it can generate various code sequences to access the peripherals and registers
+or display the available peripherals and/or registers in a human readable way.
 
 Usage:
-  svd_lookup [command]
+	svd_lookup [command]
 
 Available Commands:
-  completion  Generate the autocompletion script for the specified shell
-  convert     Convert a .SVD file to a database file
-  display     Human readable display of the registers and fields for the specified peripheral
-  dump        Dumps the SVD database
-  forth       Generate forth words to access the specified peripheral
-  help        Help about any command
-  list        List all peripherals
-  registers   List all the registers for the specified peripheral
+	asm         Generate asm .equ directives defining register and fields
+	completion  Generate the autocompletion script for the specified shell
+	convert     Convert a .SVD file to a database file
+	display     Human readable display of the registers and fields for the specified peripheral
+	dump        Dumps the SVD database
+	forth       Generate forth words to access the specified peripheral
+	help        Help about any command
+	list        List all peripherals
+	registers   List all the registers for the specified peripheral
 
 Flags:
-  -c, --curdir string     set the current directory for db search
-  -d, --database string   use the named database
-  -h, --help              help for svd_lookup
-  -v, --verbose           verbose output
+	-c, --curdir string     set the current directory for db search
+	-d, --database string   use the named database
+	-h, --help              help for svd_lookup
+	-v, --verbose           verbose output
 
 Use "svd_lookup [command] --help" for more information about a command.
 ```
