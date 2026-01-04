@@ -3,7 +3,7 @@ package svd_lookup
 import (
 	"fmt"
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 	"os"
 	"path"
 	"path/filepath"
@@ -147,7 +147,7 @@ func OpenDatabase() (error) {
 	}
 
 	fn := "file:" + dbfn + "?mode=ro"
-	db, err := sql.Open("sqlite3", fn)
+	db, err := sql.Open("sqlite", fn)
 	if err != nil {
 		return fmt.Errorf("Unable to open database file %v - %w", dbfn, err)
 	}

@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 /*
@@ -30,7 +29,7 @@ func db_createdb(filename string) (*sql.DB, error) {
 		return nil, fmt.Errorf("database file %v already exists", filename)
 	}
 
-	db, err := sql.Open("sqlite3", filename)
+	db, err := sql.Open("sqlite", filename)
 	if err != nil {
 		return nil, fmt.Errorf("Unable to open database file %v - %w", filename, err)
 	}
