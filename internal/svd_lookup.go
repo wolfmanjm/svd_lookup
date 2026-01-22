@@ -22,36 +22,34 @@ CREATE TABLE `registers` (`id` integer NOT NULL PRIMARY KEY AUTOINCREMENT, `peri
 CREATE TABLE `fields` (`id` integer NOT NULL PRIMARY KEY AUTOINCREMENT, `register_id` integer, `name` varchar(255) NOT NULL, `num_bits` integer, `bit_offset` integer, `description` varchar(255));
 */
 
-type MPU struct {
+type BasicInfo struct {
 	id int
 	name string
 	description sql.Null[string]
 }
 
+type MPU struct {
+	BasicInfo
+}
+
 type Peripheral struct {
-	id int
+	BasicInfo
 	derived_from sql.Null[int]
-	name string
 	base_address string
-	description sql.Null[string]
 	registers *[]Register
 }
 
 type Register struct {
-	id int
-	name string
+	BasicInfo
 	address_offset string
 	reset_value sql.Null[string]
-	description sql.Null[string]
 	fields *[]Field
 }
 
 type Field struct {
-	id int
-	name string
+	BasicInfo
 	num_bits int
 	bit_offset int
-	description sql.Null[string]
 }
 
 // print helpers for the structs
@@ -155,7 +153,7 @@ func OpenDatabase() (error) {
 	DB= db
 
 	// makes sure the database is ok
-	mpus, err := fetchMPUs()
+	mpus, err := fetch_mpus()
 	if err != nil {
 		return fmt.Errorf("Unable to get MPUs, is the database valid? - %w", err)
 	}
@@ -176,7 +174,7 @@ func CloseDatabase() {
 
 func getMPU() string {
 	// this should work as it was tested in OpenDatabase
-	mpu, _ := fetchMPUs()
+	mpu, _ := fetch_mpus()
 	// just use first one
 	return mpu[0].name
 }
@@ -312,7 +310,7 @@ func Registers(periph string) (error) {
 
 // database helpers
 
-func fetchMPUs() ([]MPU, error) {
+func fetch_mpus() ([]MPU, error) {
 	var mpus []MPU
 	mpu_rows, err := DB.Query("select id, name, description from mpus ORDER BY name")
 	if err != nil {
